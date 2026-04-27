@@ -8,11 +8,15 @@ A coordinated suite of agent skills for the full development lifecycle.
 
 ## Why
 
-Your agent handles individual tasks. Cadence takes the lifecycle from roadmap to merged PR without you managing the handoffs.
+Most agent tools handle the task in front of them. They write the function, fix the test, open the PR. They don't carry context across the lifecycle.
 
-Each sub-command runs as a bulk pass: it picks up everything in your backlog or PR queue and advances it in one shot. Run it manually or drop it into a scheduler and walk away.
+Research happens out of band. Tickets get created but never enriched before a developer picks them up. PRs sit unreviewed for days. Review feedback goes unfixed. Implementation starts before anyone has decided what to build.
 
-Schedule `research-backlog` to enrich new tickets overnight. Schedule `dev-backlog` to implement five of them. Schedule `bulk-pr-review` so PRs don't sit. The whole loop runs without you.
+Cadence coordinates the full development cycle as a suite of agent skills: research and planning, ticket enrichment, implementation, test coverage, PR review, and comment resolution. Each skill runs as a bulk pass over your current state. It processes your entire backlog or PR queue in one shot, not one item at a time.
+
+Because each skill is stateless and idempotent, you can schedule the full loop. Research new tickets every morning. Implement five of them every night. Review all open PRs each afternoon. Fix review feedback before standup. Your agent prepares the context before your team arrives.
+
+This is how small teams ship large projects. Cadence enforces the handoffs: research before implementation, tests before review, comments resolved before merge. Each step feeds the next. Nothing gets skipped when the pace picks up.
 
 ---
 
