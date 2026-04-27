@@ -8,15 +8,15 @@ A coordinated suite of agent skills for the full development lifecycle.
 
 ## Why
 
-Most agent tools handle the task in front of them. They write the function, fix the test, open the PR. They don't carry context across the lifecycle.
+Your agent handles the task in front of it. It writes the function, fixes the test, opens the PR. It doesn't carry context across the lifecycle.
 
-Research happens out of band. Tickets get created but never enriched before a developer picks them up. PRs sit unreviewed for days. Review feedback goes unfixed. Implementation starts before anyone has decided what to build.
+Research never makes it into the ticket. PRs sit unreviewed. Review feedback accumulates unaddressed. You start implementing before you've decided what to build.
 
-Cadence coordinates the full development cycle as a suite of agent skills: research and planning, ticket enrichment, implementation, test coverage, PR review, and comment resolution. Each skill runs as a bulk pass over your current state. It processes your entire backlog or PR queue in one shot, not one item at a time.
+Cadence covers the full cycle: research, ticket enrichment, implementation, test coverage, PR review, and comment resolution. Each skill runs as a bulk pass, processing your entire backlog or PR queue in one shot.
 
-Because each skill is stateless and idempotent, you can schedule the full loop. Research new tickets every morning. Implement five of them every night. Review all open PRs each afternoon. Fix review feedback before standup. Your agent prepares the context before your team arrives.
+Schedule the loop and it runs without you. Research new tickets every morning. Implement five every night. Review open PRs each afternoon. Fix review feedback before you start work.
 
-This is how small teams ship large projects. Cadence enforces the handoffs: research before implementation, tests before review, comments resolved before merge. Each step feeds the next. Nothing gets skipped when the pace picks up.
+The handoffs stay clean: research before implementation, tests before review, comments resolved before merge. Build something large without losing track of where you are.
 
 ---
 
