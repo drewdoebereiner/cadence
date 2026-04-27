@@ -8,11 +8,11 @@ Agentic SDLC automation for the full development lifecycle.
 
 ## Why
 
-AI coding assistants are powerful at the task level but blind to the lifecycle level. Cadence gives your AI harness the context and process it needs to operate across the full SDLC -- from product vision through implementation, testing, and review -- without you coordinating every step.
+Your AI assistant handles individual tasks. Cadence handles the lifecycle -- from roadmap to merged PR -- without you managing the handoffs.
 
-Each sub-command is designed as a bulk process: it picks up everything in the current state of your backlog or PR queue and advances it in one pass. That design is intentional. It means each sub-command can be scheduled as a cron job and run unattended.
+Each sub-command runs as a bulk pass: it picks up everything in your backlog or PR queue and advances it in one shot. Run it manually or drop it into cron and walk away.
 
-Research your backlog every morning. Implement a batch of tickets every night. Review all open PRs on a schedule. Fix review comments before standup. The lifecycle runs itself -- cadence is the clock.
+Schedule `research-backlog` to enrich new tickets overnight. Schedule `dev-backlog` to implement five of them. Schedule `bulk-pr-review` so PRs don't sit. The whole loop runs without you.
 
 ---
 
@@ -46,13 +46,13 @@ One skill, six sub-commands. Invoke as `/cadence <sub-command>`.
 /cadence bulk-pr-review
 ```
 
-Invoke `/cadence` with no sub-command to see the full list.
+Run `/cadence` with no sub-command to see the full list.
 
 ---
 
 ## Designed Workflow
 
-The sub-commands compose into a full SDLC loop:
+The sub-commands form a full SDLC loop:
 
 ```
 vision-roadmap      # What should we build?
@@ -70,10 +70,10 @@ fix-pr-comments     # Close the loop on review feedback.
 
 ### Run it on a schedule
 
-Because each sub-command is stateless and bulk-oriented, the entire loop maps cleanly onto a cron schedule. Example using Claude Code's `/schedule` command:
+Each sub-command is stateless and idempotent. Running one twice leaves no duplicate work. Use Claude Code's `/schedule` command to wire the loop into cron:
 
 ```
-# Enrich any new backlog tickets every morning at 8am
+# Enrich new backlog tickets every morning
 /schedule "0 8 * * 1-5" /cadence research-backlog
 
 # Implement up to 5 tickets every weeknight
@@ -82,11 +82,11 @@ Because each sub-command is stateless and bulk-oriented, the entire loop maps cl
 # Review all open PRs each afternoon
 /schedule "0 14 * * 1-5" /cadence bulk-pr-review
 
-# Fix review comments every morning before standup
+# Fix review comments before standup
 /schedule "0 9 * * 1-5" /cadence fix-pr-comments
 ```
 
-The sub-commands are idempotent by design: running `research-backlog` twice only adds a comment once, `dev-backlog` only picks up unstarted tickets, and `fix-pr-comments` only touches PRs with open feedback. Safe to schedule aggressively.
+`research-backlog` skips tickets it has already commented on. `dev-backlog` only picks up unstarted tickets. `fix-pr-comments` only touches PRs with open feedback.
 
 ---
 
@@ -98,7 +98,7 @@ The sub-commands are idempotent by design: running `research-backlog` twice only
 cp -r .claude/skills/cadence ~/.claude/skills/
 ```
 
-Then use `/cadence <sub-command>` in any project.
+Then use `/cadence <sub-command>` in any Claude Code session.
 
 **From this repo:**
 
@@ -111,7 +111,7 @@ cp -r cadence/.claude/skills/cadence ~/.claude/skills/
 
 ## Requirements
 
-Some sub-commands require environment variables:
+Environment variables required per sub-command:
 
 | Sub-command | Requires |
 |---|---|
