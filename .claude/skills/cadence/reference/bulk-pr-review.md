@@ -1,128 +1,194 @@
+---
+name: bulk-pr-review
+description: Use when reviewing multiple open PRs on a GitHub repo in bulk — especially when PRs may depend on each other, share files, or have ordering constraints that affect merge safety.
+---
+
 # Bulk PR Review
 
 ## Overview
 
-Review all open PRs sequentially by dependency layer, using parallel subagents within each layer. Two phases: map then review. Never skip to reviewing.
+Review all open PRs sequentially by dependency layer, using parallel subagents within each layer. Changes in one PR directly affect others — build the conflict map first, then review.
 
 ## Core Principle
 
-Build a complete picture of how PRs relate to each other before reviewing any of them. A review that ignores cross-PR dependencies produces wrong verdicts.
+**Two phases, never one:**
+1. **Map phase** — build dependency layers and cross-PR conflict registry before any review
+2. **Review phase** — dispatch parallel subagents per layer, sequential across layers
+
+Never skip to reviewing without the map. The map is what makes individual verdicts meaningful.
+
+## Process
+
+```dot
+digraph bulk_pr_review {
+    "Fetch all open PRs + CI status" [shape=box];
+    "Build dependency layer map" [shape=box];
+    "Build cross-PR conflict registry" [shape=box];
+    "Layer 0 ready?" [shape=diamond];
+    "Dispatch parallel subagents for layer" [shape=box];
+    "Collect verdicts — log each PR" [shape=box];
+    "More layers?" [shape=diamond];
+    "Emit final verdict table" [shape=box];
+
+    "Fetch all open PRs + CI status" -> "Build dependency layer map";
+    "Build dependency layer map" -> "Build cross-PR conflict registry";
+    "Build cross-PR conflict registry" -> "Layer 0 ready?";
+    "Layer 0 ready?" -> "Dispatch parallel subagents for layer" [label="yes"];
+    "Dispatch parallel subagents for layer" -> "Collect verdicts — log each PR";
+    "Collect verdicts — log each PR" -> "More layers?";
+    "More layers?" -> "Dispatch parallel subagents for layer" [label="yes, next layer"];
+    "More layers?" -> "Emit final verdict table" [label="no"];
+}
+```
 
 ## Phase 1: Map
 
-### Step 1: Fetch All Open PRs and CI Status
+### Step 1 — Fetch everything
 
 ```bash
-gh pr list --state open --json number,title,headRefName,baseRefName,files,statusCheckRollup
+gh pr list --repo owner/repo --state open --json number,title,headRefName,baseRefName,createdAt --limit 100
+gh pr list --repo owner/repo --state open --json number,statusCheckRollup
 ```
 
-Mark any PR where CI is failing as BLOCKED-CI immediately.
+CI failing? That PR is `BLOCKED-CI` — do not spend review time on it.
 
-### Step 2: Build Dependency Layers
+### Step 2 — Build dependency layers
 
-Assign each PR to a layer based on what it depends on:
+Group PRs by what must merge before them. Use title/ticket numbers and file overlap to infer order. Example layers:
+- **Layer 0:** Foundation models, protocols, enums (nothing depends on merging before these)
+- **Layer 1:** Infrastructure built on Layer 0 models
+- **Layer 2:** Business logic built on Layer 1
+- **Layer 3:** Agents/workflows built on Layer 2
+- **Layer 4:** API routers, endpoints built on Layer 3
+- **Layer 5:** Integration tests, smoke tests
 
-- **Layer 0** -- Foundation: no dependencies on other open PRs (models, migrations, core interfaces)
-- **Layer 1** -- Services that depend on Layer 0 changes
-- **Layer 2** -- Features that depend on Layer 1 services
-- **Layer 3** -- Integration or cross-cutting changes
-- **Layer 4** -- Tests that depend on Layer 3
-- **Layer 5** -- Release prep, docs, version bumps
+### Step 3 — Build cross-PR conflict registry
 
-### Step 3: Build Cross-PR Conflict Registry
+Before reviewing any PR, scan ALL diffs for:
+- **Same file in multiple PRs** → flag which version wins on last-merge
+- **Model field divergence** (e.g., `qty: int` vs `qty: float` for the same concept)
+- **Interface defined locally in multiple PRs** (protocol re-definitions, shared utils copied)
+- **Method called that doesn't exist in the referenced PR** (cross-PR interface gaps)
 
-For any file touched by 2+ open PRs, note:
-- Which PRs touch it
-- What each PR does to it
-- Whether the changes conflict or compose cleanly
+Log each conflict: `CONFLICT: <file> — PR #A vs PR #B — <description>`
 
-Also check for:
-- Model field divergence (two PRs change the same field differently)
-- Interface gaps (PR A adds a method PR B calls, but A hasn't merged)
+This registry is pre-populated into every subagent's context so they can reference known conflicts when writing verdicts.
 
 ## Phase 2: Review
 
-Dispatch one subagent per PR within each layer, all in parallel. Wait for all Layer N verdicts before starting Layer N+1.
+### Dispatch pattern
 
-Each reviewer subagent receives:
-- PR diff (`gh pr diff <number>`)
-- The cross-PR conflict registry entries relevant to this PR
-- The list of PRs in lower layers it depends on
+For each layer, dispatch one subagent per PR **in parallel**. Each subagent receives:
+1. The PR diff (`gh pr diff <number>`)
+2. The full conflict registry from Phase 1
+3. The verdict format (below)
+4. Instruction: make a decision, do not ask for clarification
 
-Verdict options:
-- **APPROVE** -- ready to merge
-- **APPROVE WITH COMMENTS** -- minor issues, can merge after addressing
-- **REQUEST CHANGES** -- must fix before merging
-- **BLOCKED-CI** -- CI failing, fix first
-- **CLOSE** -- not worth merging as-is
+```
+Dispatch Layer N subagents simultaneously → collect all verdicts → move to Layer N+1
+```
+
+Never dispatch Layer N+1 until all Layer N verdicts are in — a later layer's review depends on knowing what the earlier layer actually contains.
+
+### Verdict format (per PR)
+
+Every PR gets exactly one of:
+- `APPROVE` — merge as-is
+- `APPROVE WITH COMMENTS` — merge, but leave specific non-blocking notes
+- `REQUEST CHANGES` — cannot merge until specific items fixed (list them)
+- `BLOCKED-CI` — CI failing, do not review until green
+- `CLOSE` — superseded, duplicate, or irreconcilable conflict with another PR
+
+Then: one paragraph of reasoning + explicit list of any cross-PR impacts found.
 
 ## Decisive Decision Rules
 
-| Situation | Verdict |
-|---|---|
-| Same file in 2+ PRs with conflicting changes | REQUEST CHANGES on the later one |
-| Type mismatch between PRs | REQUEST CHANGES on both, note the conflict |
-| Missing method one PR depends on | BLOCKED until dependency merges |
-| Omnibus PR (unrelated changes bundled) | REQUEST CHANGES -- ask to split |
-| CI failing | BLOCKED-CI |
-| Style issues only | APPROVE WITH COMMENTS |
-| Safety-critical path changed without tests | REQUEST CHANGES |
+Make a call. Do not defer to the user mid-review. Use these rules:
+
+| Situation | Decision |
+|-----------|----------|
+| Same file defined in 2+ PRs | `REQUEST CHANGES` on all but the canonical one — remove duplicates |
+| Model field type mismatch across PRs | `REQUEST CHANGES` — flag both PRs, pick the more type-safe version |
+| Method called that doesn't exist in referenced PR | `REQUEST CHANGES` — flag the caller |
+| Omnibus PR containing files from multiple other PRs | `CLOSE` — prefer the atomic PRs |
+| CI failing | `BLOCKED-CI` — no review needed |
+| Minor style/naming issue | `APPROVE WITH COMMENTS` — never block on style alone |
+| Safety-critical logic (risk, auth, money movement) | Full read required — no title-level assessment |
 
 ## Phase 3: Post Results to GitHub
 
-For each verdict:
+After all verdicts are collected, post each one to its PR. Use the mapping below. Always include the full reasoning and any cross-PR conflict notes in the body.
 
-```bash
-# Approve
-gh pr review <number> --approve --body "<verdict body>"
+| Verdict | Command |
+|---------|---------|
+| `APPROVE` | `gh pr review <number> --approve --body "..."` |
+| `APPROVE WITH COMMENTS` | `gh pr review <number> --approve --body "..."` |
+| `REQUEST CHANGES` | `gh pr review <number> --request-changes --body "..."` |
+| `BLOCKED-CI` | `gh pr comment <number> --body "..."` (comment only -- no formal review until CI is green) |
+| `CLOSE` | `gh pr comment <number> --body "..."` then `gh pr close <number>` |
 
-# Request changes
-gh pr review <number> --request-changes --body "<verdict body>"
+**Body format for each post:**
 
-# Comment only
-gh pr comment <number> --body "<verdict body>"
+```
+## Review
 
-# Close
-gh pr close <number> --comment "<verdict body>"
+**Verdict:** APPROVE / REQUEST CHANGES / etc.
+
+### Reasoning
+[one paragraph]
+
+### Required Changes (if REQUEST CHANGES)
+- [ ] specific item 1
+- [ ] specific item 2
+
+### Cross-PR Impacts
+[any conflicts from the registry that affect this PR, or "None"]
+
+### Notes (if APPROVE WITH COMMENTS)
+[non-blocking observations]
 ```
 
-Verdict body format:
-```
-**Verdict:** <APPROVE / REQUEST CHANGES / BLOCKED-CI / CLOSE>
+Post all PRs in a single layer in parallel. Move to the next layer only after all posts in the current layer succeed.
 
-**Reasoning:** <1-3 sentences>
-
-**Required changes:**
-- <specific item>
-
-**Cross-PR impacts:**
-- <any conflicts with other open PRs>
-
-**Notes:**
-<anything else>
-```
+If a post fails (non-zero exit), log the error and continue -- do not halt the run.
 
 ## Final Output
 
-Print:
-- Summary counts: approved / changes requested / blocked / closed
-- Conflict list with affected PRs
-- Recommended merge order (Layer 0 first, then Layer 1, etc.)
+After all layers are posted, emit a local summary:
 
-## Red Flags -- Stop If You See These
+```
+## Bulk PR Review -- <repo> -- <date>
 
-1. A PR that changes a public API without a version bump
-2. A migration that drops a column without a backfill
-3. Two PRs that both claim to be the "canonical" version of a module
-4. A PR that disables tests or skips CI checks
-5. A PR with >20 files changed and no clear scope boundary
-6. A PR that adds a secret or credential in plaintext
+### Summary
+- Total PRs: N
+- APPROVE: N
+- APPROVE WITH COMMENTS: N
+- REQUEST CHANGES: N
+- BLOCKED-CI: N
+- CLOSE: N
+
+### Cross-PR Conflicts Found
+[list from conflict registry, with resolution recommendation]
+
+### Verdicts by Merge Order
+[Layer 0 first, then 1, 2, etc. -- each PR with verdict + GitHub review URL]
+```
+
+## Red Flags — STOP if You See These
+
+- Reviewing PRs before building the dependency map → Stop. Build the map first.
+- Reviewing PRs inline (no subagents) → Stop. Dispatch subagents per PR.
+- Skipping PRs because "low risk based on title" → Stop. Every PR gets a verdict.
+- Moving to Layer N+1 before Layer N verdicts are collected → Stop. Wait.
+- Asking the user "should I approve this?" mid-review → Stop. Make the call.
+- Stopping after verdicts without posting → Stop. Post every verdict to GitHub before reporting.
 
 ## Common Rationalizations
 
-| Rationalization | Correct behavior |
-|---|---|
-| "The conflict is minor" | Flag it. Let the author decide. |
-| "CI will probably pass after a rebase" | BLOCKED-CI until it actually passes |
-| "The tests are just flaky" | Still flag it |
-| "I don't want to block this PR" | Your job is accurate verdicts, not approval |
+| Excuse | Reality |
+|--------|---------|
+| "Title says it's just a config change" | Config changes break builds. Read the diff. |
+| "25 PRs is too many to subagent per-PR" | That's exactly why you subagent — context overhead |
+| "I'll note the conflict and move on" | A noted conflict without a verdict is an unresolved conflict |
+| "The user can decide on the tricky ones" | The skill exists precisely so they don't have to |
+| "These PRs look independent" | Every multi-PR batch has shared files. Build the registry. |
