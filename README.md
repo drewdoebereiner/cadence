@@ -1,16 +1,16 @@
 # cadence
 
-Agentic SDLC automation for the full development lifecycle.
+A coordinated suite of agent skills for the full development lifecycle.
 
-> **Install:** `cp -r .claude/skills/cadence ~/.claude/skills/` then use `/cadence <sub-command>` in Claude Code.
+> **Quick start:** Install the cadence skill into your agent harness, then run `/cadence <sub-command>`.
 
 ---
 
 ## Why
 
-Your AI assistant handles individual tasks. Cadence handles the lifecycle -- from roadmap to merged PR -- without you managing the handoffs.
+Your agent handles individual tasks. Cadence handles the lifecycle -- from roadmap to merged PR -- without you managing the handoffs.
 
-Each sub-command runs as a bulk pass: it picks up everything in your backlog or PR queue and advances it in one shot. Run it manually or drop it into cron and walk away.
+Each sub-command runs as a bulk pass: it picks up everything in your backlog or PR queue and advances it in one shot. Run it manually or drop it into a scheduler and walk away.
 
 Schedule `research-backlog` to enrich new tickets overnight. Schedule `dev-backlog` to implement five of them. Schedule `bulk-pr-review` so PRs don't sit. The whole loop runs without you.
 
@@ -70,20 +70,22 @@ fix-pr-comments     # Close the loop on review feedback.
 
 ### Run it on a schedule
 
-Each sub-command is stateless and idempotent. Running one twice leaves no duplicate work. Use Claude Code's `/schedule` command to wire the loop into cron:
+Each sub-command is stateless and idempotent. Running one twice leaves no duplicate work, so the whole loop is safe to schedule.
+
+Wire it into cron directly, or use your harness's built-in scheduler if it has one:
 
 ```
 # Enrich new backlog tickets every morning
-/schedule "0 8 * * 1-5" /cadence research-backlog
+0 8 * * 1-5   /cadence research-backlog
 
 # Implement up to 5 tickets every weeknight
-/schedule "0 21 * * 1-5" /cadence dev-backlog
+0 21 * * 1-5  /cadence dev-backlog
 
 # Review all open PRs each afternoon
-/schedule "0 14 * * 1-5" /cadence bulk-pr-review
+0 14 * * 1-5  /cadence bulk-pr-review
 
 # Fix review comments before standup
-/schedule "0 9 * * 1-5" /cadence fix-pr-comments
+0 9 * * 1-5   /cadence fix-pr-comments
 ```
 
 `research-backlog` skips tickets it has already commented on. `dev-backlog` only picks up unstarted tickets. `fix-pr-comments` only touches PRs with open feedback.
@@ -98,14 +100,14 @@ Each sub-command is stateless and idempotent. Running one twice leaves no duplic
 cp -r .claude/skills/cadence ~/.claude/skills/
 ```
 
-Then use `/cadence <sub-command>` in any Claude Code session.
-
 **From this repo:**
 
 ```bash
 git clone https://github.com/drewdoebereiner/cadence.git
 cp -r cadence/.claude/skills/cadence ~/.claude/skills/
 ```
+
+Support for additional harnesses (Cursor, Gemini CLI, Codex) is planned.
 
 ---
 
@@ -132,9 +134,10 @@ Environment variables required per sub-command:
 
 ---
 
-## Supported Tools
+## Supported Harnesses
 
-- Claude Code (Claude CLI)
+- Claude Code
+- More planned
 
 ---
 
