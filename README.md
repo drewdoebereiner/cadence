@@ -109,6 +109,14 @@ cp -r cadence/.claude/skills/cadence ~/.claude/skills/
 
 ---
 
+## Why Linear
+
+Three of the six sub-commands read and write Linear. Its GraphQL API is clean and well-documented. Ticket states (backlog, unstarted, in review) map directly to the stages cadence moves work through. Comment threads persist between agent runs, so research findings are already on the ticket when the implementer picks it up. For agents running on a schedule, that combination means full programmatic control with no UI work required.
+
+Linear was built with developer tooling in mind. That shows in the API. It's why cadence uses it rather than a more generic project management tool.
+
+---
+
 ## Requirements
 
 Environment variables required per sub-command:
