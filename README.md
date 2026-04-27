@@ -8,7 +8,7 @@ A coordinated suite of agent skills for the full development lifecycle.
 
 ## Why
 
-Your agent handles individual tasks. Cadence handles the lifecycle -- from roadmap to merged PR -- without you managing the handoffs.
+Your agent handles individual tasks. Cadence takes the lifecycle from roadmap to merged PR without you managing the handoffs.
 
 Each sub-command runs as a bulk pass: it picks up everything in your backlog or PR queue and advances it in one shot. Run it manually or drop it into a scheduler and walk away.
 
