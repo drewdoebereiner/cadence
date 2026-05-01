@@ -6,6 +6,21 @@ A coordinated suite of agent skills for the full development lifecycle.
 
 ---
 
+## Pair With Superpowers
+
+Cadence is purpose-built for bulk execution and scheduled automation. Before you start building, pair it with **[Superpowers](https://github.com/obra/superpowers)** — a methodology toolkit that ensures your agent approaches problems the right way from the start.
+
+**Before any project, run the brainstorming skill from Superpowers.** It steps your agent back from the keyboard, teases out a real spec, and produces an implementation plan grounded in YAGNI and TDD — before a single line of code is written. That's the right foundation for cadence to execute against.
+
+The split of responsibility is clean:
+
+- **Superpowers** — _how_ to think: brainstorm, spec, plan, design
+- **Cadence** — _how_ to execute at scale: bulk implementation, scheduled cron runs, PR review loops
+
+Use Superpowers to decide what to build. Use cadence to build it, review it, and ship it — automatically, on a schedule, without babysitting.
+
+---
+
 ## Why
 
 Cadence covers the full cycle: research, ticket enrichment, implementation, test coverage, PR review, and comment resolution. Each skill runs as a bulk pass, processing your entire backlog or PR queue in one shot.
