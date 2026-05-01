@@ -109,20 +109,22 @@ Wire it into cron directly, or use your harness's built-in scheduler if it has o
 
 ## Installation
 
+Copy the `skills/cadence` folder into your agent's skills directory.
+
 **Claude Code:**
 
 ```bash
-cp -r .claude/skills/cadence ~/.claude/skills/
+cp -r skills/cadence ~/.claude/skills/
 ```
 
 **From this repo:**
 
 ```bash
 git clone https://github.com/drewdoebereiner/cadence.git
-cp -r cadence/.claude/skills/cadence ~/.claude/skills/
+cp -r cadence/skills/cadence <your-agent-skills-dir>/
 ```
 
-Support for additional harnesses (Cursor, Gemini CLI, Codex) is planned.
+The destination path varies by harness — check your agent's documentation for where it loads skills from.
 
 ---
 
