@@ -151,8 +151,13 @@ Environment variables required per sub-command:
 
 ## Supported Harnesses
 
+Cadence is harness-agnostic. The skills are plain markdown files — any agent that can load and execute skills can run cadence.
+
 - Claude Code
-- More planned
+- Cursor
+- Gemini CLI
+- OpenAI Codex CLI
+- Any agent that supports skill or plugin files
 
 ---
 
