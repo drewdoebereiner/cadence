@@ -57,13 +57,35 @@ flowchart TD
 
 ---
 
+## Scheduling
+
+Each sub-command is stateless and idempotent — running one twice produces no duplicate work. That makes the whole pipeline safe to wire into cron.
+
+```
+# Enrich new backlog tickets every morning
+0 8 * * 1-5   /cadence research-backlog
+
+# Implement up to 5 tickets every weeknight
+0 21 * * 1-5  /cadence dev-backlog
+
+# Review all open PRs each afternoon
+0 14 * * 1-5  /cadence bulk-pr-review
+
+# Fix review comments before standup
+0 9 * * 1-5   /cadence fix-pr-comments
+```
+
+`research-backlog` skips tickets it has already commented on. `dev-backlog` only picks up unstarted tickets. `fix-pr-comments` only touches PRs with open feedback.
+
+Set it up once and the loop runs on its own.
+
+---
+
 ## Why
 
 Cadence covers the full cycle: research, ticket enrichment, implementation, test coverage, PR review, and comment resolution. Each skill runs as a bulk pass, processing your entire backlog or PR queue in one shot.
 
-Schedule the loop and it runs without you. Research new tickets every morning. Implement five every night. Review open PRs each afternoon. Fix review feedback before you start work.
-
-The handoffs stay clean: research before implementation, tests before review, comments resolved before merge. Build something large without losing track of where you are.
+The handoffs stay clean: research before implementation, tests before review, comments resolved before merge.
 
 ---
 
@@ -118,28 +140,6 @@ bulk-pr-review      # Review everything in flight.
       |
 fix-pr-comments     # Close the loop on review feedback.
 ```
-
-### Run it on a schedule
-
-Each sub-command is stateless and idempotent. Running one twice leaves no duplicate work, so the whole loop is safe to schedule.
-
-Wire it into cron directly, or use your harness's built-in scheduler if it has one:
-
-```
-# Enrich new backlog tickets every morning
-0 8 * * 1-5   /cadence research-backlog
-
-# Implement up to 5 tickets every weeknight
-0 21 * * 1-5  /cadence dev-backlog
-
-# Review all open PRs each afternoon
-0 14 * * 1-5  /cadence bulk-pr-review
-
-# Fix review comments before standup
-0 9 * * 1-5   /cadence fix-pr-comments
-```
-
-`research-backlog` skips tickets it has already commented on. `dev-backlog` only picks up unstarted tickets. `fix-pr-comments` only touches PRs with open feedback.
 
 ---
 
