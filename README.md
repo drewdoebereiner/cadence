@@ -199,6 +199,27 @@ Cadence is harness-agnostic. The skills are plain markdown files — any agent t
 
 ---
 
+## Contributing
+
+Contributions are welcome. Cadence is a collection of plain markdown skill files — no build step, no dependencies.
+
+**Good candidates for contributions:**
+
+- New sub-commands that fit the bulk-pass pattern
+- Improvements to existing skills (better prompting, edge case handling, new harness support)
+- Installation instructions for additional harnesses (Cursor, Gemini CLI, Codex, etc.)
+
+**To contribute:**
+
+1. Fork the repo
+2. Create a branch (`git checkout -b my-improvement`)
+3. Make your changes in `skills/cadence/`
+4. Open a PR with a clear description of what the skill does and why it belongs in cadence
+
+If you're unsure whether an idea fits, open an issue first.
+
+---
+
 ## License
 
 MIT
