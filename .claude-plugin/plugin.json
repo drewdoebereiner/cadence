@@ -5,5 +5,5 @@
   "author": "drewdoebereiner",
   "homepage": "https://github.com/drewdoebereiner/cadence",
   "repository": "https://github.com/drewdoebereiner/cadence",
-  "skills": "./.claude/skills"
+  "skills": "./skills"
 }
