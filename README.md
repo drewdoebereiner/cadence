@@ -21,6 +21,42 @@ Use Superpowers to decide what to build. Use cadence to build it, review it, and
 
 ---
 
+## How It All Fits Together
+
+```mermaid
+flowchart TD
+    SP["Superpowers\nBrainstorm · Spec · Plan"]
+
+    SP -->|foundation before building| VR
+
+    subgraph CADENCE["Cadence"]
+        VR["/cadence vision-roadmap\nRoadmap + Linear backlog tickets"]
+        RB["/cadence research-backlog\nEnrich tickets with research"]
+        DB["/cadence dev-backlog\nImplement top 5 tickets, open PRs"]
+        WUT["/cadence write-unit-tests\nAdd coverage to changes"]
+        BPR["/cadence bulk-pr-review\nReview all open PRs in parallel"]
+        FPC["/cadence fix-pr-comments\nResolve feedback, push fixes"]
+
+        VR --> RB --> DB --> WUT --> BPR --> FPC
+    end
+
+    subgraph LINEAR["Linear"]
+        LB["Backlog"]
+        LU["Unstarted"]
+        LIR["In Review"]
+        LD["Done"]
+
+        LB --> LU --> LIR --> LD
+    end
+
+    VR -->|creates tickets| LB
+    RB -->|posts findings| LB
+    DB -->|picks up & moves| LIR
+    FPC -->|closes on merge| LD
+```
+
+---
+
 ## Why
 
 Cadence covers the full cycle: research, ticket enrichment, implementation, test coverage, PR review, and comment resolution. Each skill runs as a bulk pass, processing your entire backlog or PR queue in one shot.
