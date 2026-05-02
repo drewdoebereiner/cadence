@@ -53,8 +53,8 @@ flowchart TD
 
     VR -->|creates tickets| LB
     RB -->|posts findings| LB
+    RB -->|posts findings| LU
     DB -->|picks up & moves| LIR
-    FPC -->|closes on merge| LD
 ```
 
 ---
