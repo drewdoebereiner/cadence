@@ -1,6 +1,6 @@
 # cadence
 
-A coordinated suite of agent skills for the full development lifecycle.
+A bulk execution framework for shipping large-scale software production on a schedule — automatically, without babysitting.
 
 > **Quick start:** Install the cadence skill into your agent harness, then run `/cadence <sub-command>`.
 
@@ -8,16 +8,18 @@ A coordinated suite of agent skills for the full development lifecycle.
 
 ## Pair With Superpowers
 
-Cadence is purpose-built for bulk execution and scheduled automation. Before you start building, pair it with **[Superpowers](https://github.com/obra/superpowers)** — a methodology toolkit that ensures your agent approaches problems the right way from the start.
+Cadence handles _what_ gets done at scale. **[Superpowers](https://github.com/obra/superpowers)** handles _how_ the agent codes.
 
-**Before any project, run the brainstorming skill from Superpowers.** It steps your agent back from the keyboard, teases out a real spec, and produces an implementation plan grounded in YAGNI and TDD — before a single line of code is written. That's the right foundation for cadence to execute against.
+Superpowers is a methodology toolkit that encodes software engineering best practices directly into the agent's behavior — TDD, systematic debugging, structured brainstorming, plan-before-code, and rigorous code review. It ensures the LLM writes good code, not just fast code.
+
+Cadence is the production execution layer built on top of that foundation: bulk implementation runs, scheduled cron pipelines, parallel PR review, and automated comment resolution. It is how you move an entire backlog from idea to merged PR without human intervention at each step.
 
 The split of responsibility is clean:
 
-- **Superpowers** — _how_ to think: brainstorm, spec, plan, design
-- **Cadence** — _how_ to execute at scale: bulk implementation, scheduled cron runs, PR review loops
+- **Superpowers** — best practices baked into the agent: TDD, debugging workflows, brainstorming, code review discipline
+- **Cadence** — bulk production framework: schedule the full SDLC, process entire backlogs and PR queues in one pass
 
-Use Superpowers to decide what to build. Use cadence to build it, review it, and ship it — automatically, on a schedule, without babysitting.
+Run Superpowers so the agent codes correctly. Run cadence so it does that at production scale, on a schedule.
 
 ---
 
@@ -83,9 +85,9 @@ Set it up once and the loop runs on its own.
 
 ## Why
 
-Cadence covers the full cycle: research, ticket enrichment, implementation, test coverage, PR review, and comment resolution. Each skill runs as a bulk pass, processing your entire backlog or PR queue in one shot.
+Most agent tooling helps you write one feature at a time. Cadence is built for production scale: it processes your entire backlog, PR queue, and test coverage gaps in a single automated pass.
 
-The handoffs stay clean: research before implementation, tests before review, comments resolved before merge.
+Pair it with Superpowers — which encodes best practices into how the agent codes — and you get an agent that not only ships fast, but ships correctly. Research before implementation, tests before review, comments resolved before merge. The full SDLC runs on a schedule with no manual handoffs.
 
 ---
 
