@@ -9,6 +9,10 @@ description: Use when reviewing multiple open PRs on a GitHub repo in bulk — e
 
 Review all open PRs sequentially by dependency layer, using parallel subagents within each layer. Changes in one PR directly affect others — build the conflict map first, then review.
 
+## Tooling Rule
+
+**Always use `gh` CLI. Never use GitHub MCP tools.** Do not attempt MCP, do not fall back from MCP — use `gh` from the first call.
+
 ## Core Principle
 
 **Two phases, never one:**
