@@ -174,6 +174,20 @@ Linear was built with developer tooling in mind. That shows in the API. It's why
 
 ---
 
+## Why Direct API Calls, Not MCP
+
+Cadence uses `curl` for Linear and `gh` CLI (or `curl`) for GitHub instead of MCP servers. The reason is token efficiency.
+
+MCP tool calls carry significant overhead — each invocation bloats the context window with tool schema, request framing, and response wrapping. In a single-turn conversation that's acceptable. In a bulk run that dispatches 5–25 parallel subagents, each making multiple API calls, the overhead compounds. A run that could stay within context becomes one that hits limits or forces expensive compaction mid-flight.
+
+Direct API calls return exactly what you ask for and nothing more. A `gh pr list` or GraphQL `curl` costs a fraction of the equivalent MCP call in context tokens, leaving more room for the actual work — diffs, code, reasoning, and verdicts.
+
+MCP servers are also not reliably available in remote or scheduled environments. `GH_TOKEN` and `LINEAR_API_KEY` are env vars that travel with the run everywhere.
+
+**The rule across all cadence skills:** Linear via `curl` + `$LINEAR_API_KEY`. GitHub via `gh` or `curl` + `$GH_TOKEN`. Never MCP.
+
+---
+
 ## Requirements
 
 Environment variables required per sub-command:
