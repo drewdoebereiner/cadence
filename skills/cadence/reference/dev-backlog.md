@@ -54,7 +54,7 @@ export GH_TOKEN=$GH_TOKEN
 | "MCP is easier" | The user explicitly requires API key auth. |
 | "MCP handles errors better" | curl / gh return the same data. Check the response. |
 | "MCP tools are already configured" | Does not matter. Use curl / gh. |
-| "gh isn't available" | Set `GH_TOKEN` and `gh` will work. If `gh` isn't installed, stop and report — do not attempt MCP. |
+| "gh isn't available" | Fall back to `curl` against the GitHub REST API with `GH_TOKEN`. Never MCP. |
 
 If you are about to call any `mcp__claude_ai_Linear__*` or GitHub MCP tool: stop. Use curl / gh instead.
 

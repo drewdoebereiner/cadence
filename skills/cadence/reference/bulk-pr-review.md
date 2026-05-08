@@ -23,7 +23,7 @@ export GH_TOKEN=$GH_TOKEN
 | "GitHub MCP is already configured" | Does not matter. Use `gh`. |
 | "MCP is easier than gh CLI" | `gh` returns the same data. |
 | "Let me try MCP and fall back to gh" | No. Start with `gh`. There is no fallback. |
-| "gh isn't available" | Set `GH_TOKEN` and `gh` will work. If `gh` isn't installed, stop and report — do not attempt MCP. |
+| "gh isn't available" | Fall back to `curl` against the GitHub REST API with `GH_TOKEN`. Never MCP. |
 
 If you are about to call any GitHub MCP tool: stop. Use `gh` instead.
 
