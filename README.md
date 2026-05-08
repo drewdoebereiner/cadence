@@ -182,10 +182,10 @@ Environment variables required per sub-command:
 |---|---|
 | `vision-roadmap` | `LINEAR_API_KEY` |
 | `research-backlog` | `LINEAR_API_KEY` |
-| `dev-backlog` | `LINEAR_API_KEY`, `gh` CLI authenticated |
+| `dev-backlog` | `LINEAR_API_KEY`, `GH_TOKEN` |
 | `write-unit-tests` | none |
-| `fix-pr-comments` | `gh` CLI authenticated |
-| `bulk-pr-review` | `gh` CLI authenticated |
+| `fix-pr-comments` | `GH_TOKEN` |
+| `bulk-pr-review` | `GH_TOKEN` |
 
 ---
 
