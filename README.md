@@ -1,5 +1,9 @@
 # trellis
 
+**[trellis.builders](https://trellis.builders)**
+
+![trellis](assets/readme.png)
+
 A bulk execution framework for shipping large-scale software production on a schedule — automatically, without babysitting.
 
 > A trellis doesn't control the plant, it gives it structure to grow along. That maps cleanly onto an agentic framework: you define the skills and shape, the agents find their way through it.
