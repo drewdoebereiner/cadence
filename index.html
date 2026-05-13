@@ -889,9 +889,12 @@
 
       .why-grid { grid-template-columns: 1fr; }
 
-      /* Code overflow */
-      .code-panel { overflow-x: auto; padding: 1.5rem 1.75rem; }
-      .code-panel code { white-space: pre; min-width: max-content; }
+      /* Hide clone commands panel on mobile */
+      .code-panel:first-child { display: none; }
+
+      /* Commands panel — allow names to wrap rather than overflow */
+      .cmd-name { word-break: break-word; overflow-wrap: break-word; }
+      .code-panels { width: 100%; min-width: 0; }
 
       /* Cron overflow */
       .cron-block { overflow-x: auto; padding: 1.75rem 2rem; }
@@ -919,6 +922,10 @@
 
       /* Install steps */
       .install-heading { margin-bottom: 2rem; }
+
+      /* Install code panels */
+      .code-panel { padding: 1.25rem 1.25rem; }
+      .cmd-row { padding: 0.875rem 0; }
 
       /* Why grid cells */
       .why-cell { padding: 1.75rem; }
